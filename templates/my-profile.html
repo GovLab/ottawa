@@ -1,0 +1,112 @@
+{% extends "__base__.html" %}
+
+{% block title %}My Profile{% endblock %}
+{% block page_style_post %}
+<style>
+.profile-img { width: 60px; height: 60px; border-radius: 30px;}
+</style>
+{% endblock %}
+
+{% block content %}
+{% if session['user-as-JSON'] %}
+<h1><img src="{{session['user-as-JSON']['picture']}}" class="profile-img"/>Your Profile</h1>
+{% endif %}
+
+<form class="form-horizontal">
+<fieldset>
+
+<!-- Form Name -->
+<legend>Some core information about you</legend>
+
+<!-- Text input-->
+<div class="form-group">
+  <label class="col-md-4 control-label" for="textinput">Given Name</label>  
+  <div class="col-md-4">
+  <input id="given_name" name="given_name" type="text" placeholder="placeholder" class="form-control input-md">
+  <span class="help-block">help</span>  
+  </div>
+</div>
+
+<!-- Text input-->
+<div class="form-group">
+  <label class="col-md-4 control-label" for="textinput">Family Name</label>  
+  <div class="col-md-4">
+  <input id="family_name" name="family_name" type="text" placeholder="placeholder" class="form-control input-md">
+  <span class="help-block">help</span>  
+  </div>
+</div>
+
+<!-- Text input-->
+<div class="form-group">
+  <label class="col-md-4 control-label" for="textinput">Position</label>  
+  <div class="col-md-4">
+  <input id="textinput" name="textinput" type="text" placeholder="placeholder" class="form-control input-md">
+  <span class="help-block">help</span>  
+  </div>
+</div>
+
+<!-- Location > City -->
+<div class="form-group">
+  <label class="col-md-4 control-label" for="textinput">Location (City)</label>  
+  <div class="col-md-4">
+  <input id="textinput" name="textinput" type="text" placeholder="placeholder" class="form-control input-md">
+  <span class="help-block">help</span>  
+  </div>
+</div>
+
+<!-- Location > Country -->
+<div class="form-group">
+  <label class="col-md-4 control-label" for="textinput">Location (Country)</label>  
+  <div class="col-md-4">
+  <input id="country" name="country" type="text" placeholder="placeholder" class="form-control input-md">
+  <span class="help-block">help</span>  
+  </div>
+</div>
+
+<!-- Textarea -->
+<div class="form-group">
+  <label class="col-md-4 control-label" for="textarea">Domain Expertise</label>
+  <div class="col-md-4">                     
+    <textarea class="form-control" id="textarea" name="textarea">default text</textarea>
+    <span class="help-block">help</span>  
+  </div>
+</div>
+
+<!-- Select Multiple -->
+<div class="form-group">
+  <label class="col-md-4 control-label" for="selectmultiple">Language(s)</label>
+  <div class="col-md-4">
+    <select id="selectmultiple" name="selectmultiple" class="form-control" multiple="multiple">
+      <option value="fr">Français</option>
+      <option value="en">English</option>
+      <option value="es">Español</option>
+    </select>
+  </div>
+</div>
+
+<!-- Text input-->
+<div class="form-group">
+  <label class="col-md-4 control-label" for="textinput">Email</label>  
+  <div class="col-md-4">
+  <input id="textinput" name="textinput" type="text" placeholder="placeholder" class="form-control input-md">
+  <span class="help-block">help</span>  
+  </div>
+</div>
+</fieldset>
+
+<center>
+<input type="submit" value="save"/>
+</center>
+
+</form>
+
+{% endblock %}
+
+{% block page_script %}
+<script>
+var user = {{session['user-as-JSON']|tojson}};
+$.each(['given_name', 'family_name'], function(i, v) {
+	$('#' + v).val(user[v]);
+});
+</script>
+{% endblock %}

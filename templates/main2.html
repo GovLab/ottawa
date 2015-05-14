@@ -1,0 +1,75 @@
+{% extends "__base__.html" %}
+
+{% block page_style_post %}
+		<style>
+		.username { font-size: 66%;}
+		.im-centered { margin: auto; max-width: 300px;}
+		.profile-img2 { width: 40px; height: 40px; border-radius: 20px;}
+		.profile-img { width: 24px; height: 24px; border-radius: 12px;}
+		</style>
+{% endblock %}
+
+
+
+		{% block content %}
+		
+		<h1>Network of Innovators</h1>
+		<h2 style="display:none;" id="greetings">Welcome <span class="username"></span><img class="profile-img" alt="mugshot"/></h2>
+
+		{% if session['user-as-JSON'] %}
+		<h1><img src="{{session['user-as-JSON']['picture']}}" class="profile-img"/>Hello {{session['user-as-JSON']['given_name']}}</h1>
+		{% endif %}
+
+		<p>this is where we put some cool content about what the Network of Innovators is all about.</p>
+
+		<div class="alert alert-success" role="alert">This is an experiment.</div>
+		<div class="alert alert-info" role="alert">The data might be inacurrate.</div>
+		<div class="alert alert-warning" role="alert">Another warning here.</div>
+		<div class="alert alert-danger" role="alert">Please share your feedback about the tool.</div>
+
+<div class="im-centered">
+		<div class="row">
+  		<div class="col-xs-6 col-md-6">
+    		<a href="/me" class="btn btn-primary" role="button">Fill your profile</a>
+    	</div>
+    	<div class="col-xs-6 col-md-6">
+    		<a href="/" class="btn btn-primary" role="button">Search for expertise</a>
+    	</div>
+	  </div>
+</div>
+
+		{% endblock %}
+
+		{% block page_script %}
+<script>
+var noiRef = new Firebase("https://popping-fire-1331.firebaseio.com/noi");
+var user = null;
+var userAuthData = null;
+
+{% include "user-session.js" %}
+
+var authFunction = function(error, authData) {
+	if (error) {
+  	console.log("Login Failed!", error);
+	} else {
+  	console.log("Authenticated successfully with payload:", authData);
+  	userAuthData = authData;
+  	userId = authData.uid;
+  	user = { 'family_name': authData.google.cachedUserProfile.family_name,
+  						'given_name': authData.google.cachedUserProfile.given_name,
+  					  'picture': authData.google.cachedUserProfile.picture };
+  	console.log(user);
+  	$('.username').text(user.given_name);
+  	$('.profile-img').attr('src', user.picture);
+  	$('#greetings').show();
+  	$('.login').hide();
+  	// We now send the token to the server for future test.
+  	user['usersession'] = authData.token;
+  	$.post( "/session", { 'user-as-JSON': JSON.stringify(user), 'token': authData.token } );
+  	console.log('After POST');
+	}
+}
+$('.login').click(function() { noiRef.authWithOAuthPopup("google", authFunction); });
+//noiRef.authWithOAuthPopup("google", authFunction);
+  	</script>
+  	{% endblock %}
