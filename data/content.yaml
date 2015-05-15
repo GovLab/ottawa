@@ -1,0 +1,104 @@
+answers:
+  - name: Explain it
+  - name: Do it
+  - name: Refer those who can
+questions: 
+  - name: What potentially useful data my organization has. And I can….
+    category: Strategy and Policy
+    number: 1
+    value: 5
+  - name: How I can identify what data will help my organization achieve its core mission. And I can….
+    category: Strategy and Policy
+    number: 2
+    value: 10
+  - name: How I can distinguish between potentially sensitive data and non-sensitive data that can be released to the public and within what timeframe. And I can....
+    category: Strategy and Policy
+    number: 3
+    value: 15
+  - name: What open data policies or strategies will guide what types of data I can release, and how. And I can....
+    category: Strategy and Policy
+    number: 4
+    value: 20
+  - name: What the intellectual property concerns related to opening data are. And I can...
+    category: Strategy and Policy
+    number: 5
+    value: 25
+  - name: How I get agency buy-in regarding open data – in general terms and regarding specific data sources. And I can...
+    category: Strategy and Policy
+    number: 6
+    value: 30
+  - name: How I create, publish and receive feedback on an “open data policy” specifically for my agency/department. And I can...
+    category: Strategy and Policy
+    number: 7
+    value: 35
+  - name: How I scrape data from my domain. And I can...
+    category: Implementing an Open Data Program
+    number: 8
+    value: 40
+  - name: How I make data machine-readable. What formats should I publish my data in. And I can....  
+    category: Implementing an Open Data Program
+    number: 9
+    value: 45
+  - name: What data standards I use to publish my data. And I can...
+    category: Implementing an Open Data Program
+    number: 10
+    value: 50
+  - name: What is the right infrastructure for making data available. And I can...
+    category: Implementing an Open Data Program
+    number: 11
+    value: 55
+  - name: How I organize the data to be opened. And I can....
+    category: Implementing an Open Data Program
+    number: 12
+    value: 60
+  - name: How do I enable access to my open data or submit open data to central government portals. And I can...
+    category: Implementing an Open Data Program
+    number: 13
+    value: 65
+  - name: Who should manage the process of opening up the organization’s data...And I can...
+    category: Implementing an Open Data Program
+    number: 14
+    value: 70
+  - name: How often should these datasets be released and updated. And I can...
+    category: Implementing an Open Data Program
+    number: 15
+    value: 75
+  - name: How I can ensure continued data quality and integrity. And I can...
+    category: Implementing an Open Data Program
+    number: 16
+    value: 80
+  - name: How to create incentives for users or the public to make productive use of the data. And I can...
+    category: Accelerating Use
+    number: 17
+    value: 85
+  - name: How to monitor how my data is being used. And I can...
+    category: Accelerating Use
+    number: 18
+    value: 90
+  - name: What information to include about this data set to make it understandable to the public. And I can...
+    category: Accelerating Use
+    number: 19
+    value: 90
+  - name: How to express the value proposition of the open data sets, including what problems can be solved with this data. And I can...
+    category: Accelerating Use
+    number: 20
+    value: 90
+  - name: How to measure the economic and/or social impact of opening up data . And I can...
+    category: Measuring impact
+    number: 95
+  - name: How to identify what variable or element makes a difference with regard to the value and use of the data. And I can...
+    category: Measuring impact 
+    number: 22
+    value: 100
+
+open-data:
+  - title: Operations
+    description: Avoid doing X and Y while doing Z ...
+    topics:
+      - name: Scraping data from a domain
+      - name: Making data machine-readable
+      - name: Formatting data for publication
+  - title: Governance
+    description: Avoid doing X and Y while doing Z ...
+  - title: Developing a Strategy and Policy
+    description: Avoid doing X and Y while doing Z ...    
