@@ -18,6 +18,7 @@ div.btn-group {
 </style>
 {% endblock %}
 
+
 {% block content %}
 {% if session['user-as-JSON'] %}
 <h1><img src="{{session['user-as-JSON']['picture']}}" class="profile-img"/>My Expertise(s)</h1>
@@ -25,6 +26,7 @@ div.btn-group {
 you should login.
 {% endif %}
 
+<!--
 {# We define a macro for buttons; buttons are prefixed by the question name. #}
 {% macro noi_buttons(question_name) -%}
 	<div class="btn-group-wrap">
@@ -45,7 +47,7 @@ you should login.
 		{{ noi_buttons('{{tag}}') }}
 			</li>
 {%- endmacro %}
-
+-->
 <ul class="nav nav-tabs nav-justified" id="expertise-tab">
 	<li role="presentation"><a href="#open-data-tab">Open Data <i class="fa fa-folder-open fa-3x"></i></a>
 	<li role="presentation"><a href="#prizes-tab">Prizes <i class="fa fa-money fa-3x"></i></a>
@@ -56,6 +58,24 @@ you should login.
 	<br/>
   <div class="tab-pane fade active in" id="open-data-tab">
 
+    
+  
+    {% for item1 in QUESTIONS %}
+    
+    <div id="question-{{item1.number}}">
+      <label>{{item1.category}}</label>
+    <p>I know .. {{item1.name}}</p>
+    {% for item in ANSWERS %}
+    {% if loop.index is odd %}
+    <div data-enhance="false"><input type="checkbox" name="checkbox-{{item1.number}}" value="{{item.name}}" />{{item.name}}</div>
+    {% else %}
+    <div ><input type="checkbox" name="checkbox-{{item1.number}}" value="{{item.name}}" />{{item.name}}</div>
+    {% endif %}
+    {% endfor %}
+  </div>
+    {% endfor %}
+  
+<!--
   	<div class="accordion" id="accordion-open-data">
 
   		<div class="accordion-group">
@@ -77,6 +97,7 @@ you should login.
     		</div>
   		</div> <!-- END OF accordion-group -->
 
+<!--
   		<div class="accordion-group">
     		<div class="accordion-heading">
     			<a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion-open-data" href="#implementing">
@@ -95,6 +116,8 @@ you should login.
       		</div>
     		</div>
   		</div> <!-- END OF accordion-group -->
+
+<!--
 
   		<div class="accordion-group">
     		<div class="accordion-heading">
@@ -165,6 +188,30 @@ you should login.
 
 {% block page_script %}
 <script>
+
+$(document).ready(function () {
+
+
+    {% for item in QUESTIONS %}
+    {% if loop.index > 1%}
+      $("div#question-{{item.number}}").hide();
+    {% endif %}
+    {% endfor %}
+
+    {% for item in QUESTIONS %}
+    
+
+     $("input[name$='checkbox-{{item.number}}']").click(function() {
+      //alert("I am an alert box!");
+
+        $("#question-{{item.number}}").hide();
+          
+          $("#question-{{item.number + 1}}").show();
+      });
+
+    {% endfor %}
+});
+
 $('.btn').click(function() {
 	if ($(this).attr('checked') == 'checked') {
 		// We click on an option that is already checked; ==> uncheck.
