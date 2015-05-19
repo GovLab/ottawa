@@ -6,38 +6,24 @@ questions:
   - name: how to identify what data will help my organization achieve its core mission. And I can ..
     category: Strategy and Policy
     tag: CORE MISSION
-    number: 1
-    value: 5
   - name: how to distinguish between potentially sensitive data and non-sensitive data. And I can.. 
     category: Strategy and Policy
     tag: SENSITIVE DATA
-    number: 2
-    value: 10
   - name: how to craft a clear policy explaining what data to open and how. And I can
     category: Strategy and Policy
     tag: WRITE A POLICY
-    number: 3
-    value: 15
   - name: how to do public consultation on an open data policy. And I can….
     category: Strategy and Policy
-    number: 4
     tag: OPEN POLICY
-    value: 25
   - name: how to get organizational approval for opening data. And I can
     category: Strategy and Policy
     tag: BUY IN
-    number: 5
-    value: 30
   - name: How I scrape data from my domain. And I can...
     category: Implementing an Open Data Program
     tag: SCRAPE DATA
-    number: 6
-    value: 40
   - name: How I make data machine-readable. And I can....  
     category: Implementing an Open Data Program
     tag: MACHINE READABLE
-    number: 7
-    value: 45
   - name: What formats to publish data in. And I can…
     category: Implementing an Open Data Program
     tag: DATA FORMATS
@@ -46,70 +32,35 @@ questions:
   - name: How to license my data. And I can..
     category: Implementing an Open Data Program
     tag: DATA LICENSE
-    number: 9
-    value: 55
   - name: What data standards to publish data in. And I can.
     category: Implementing an Open Data Program
     tag: DATA STANDARDS
-    number: 10
-    value: 60
   - name: How to use the right infrastructure for making data available. And I can…
     tag: INFRASTRUCTURE
-    number: 11
-    value: 65
   - name: Good management for an open data project project. And I can.
     category: Implementing an Open Data Program
     tag: MANAGEMENT
-    number: 12
-    value: 70
   - name: How to determine how often these datasets should be released and updated. And I can
     category: Implementing an Open Data Program
     tag: FREQUENCY
-    number: 13
-    value: 75
   - name: How to can ensure continued data quality and integrity. And I can
     category: Implementing an Open Data Program
     tag: DATA QUALITY
-    number: 14
-    value: 80
   - name: How to create incentives for users or the public to make productive use of the data. And I can...
     category: Accelerating Use
     tag: INCENTIVES
-    number: 15
-    value: 85
   - name: how to identify and combine other sources of open data to achieve a goal. And I can… 
     category: Accelerating Use
     tag: MASHUP
-    number: 16
-    value: 90
   - name: How to design a data collaborative (public-private) data sharing partnership 
     category: Accelerating Use
     tag: DATA COLLABORATIVE
-    number: 17
-    value: 90
   - name: how to express the value proposition of the open data sets, including what problems can be solved with this data. And I can… 
     category: Accelerating Use
     tag: VALUE
-    number: 18
-    value: 90
   - name: how to monitor how my data is being used. And I can…
     category: Measuring impact
     tag: MONITORING
-    number: 19
   - name: how to measure the economic and/or social impact of opening up data . And I can... 
     category: Measuring impact 
     tag: IMPACT
-    number: 20
-    value: 100
-
-open-data:
-  - title: Operations
-    description: Avoid doing X and Y while doing Z ...
-    topics:
-      - name: Scraping data from a domain
-      - name: Making data machine-readable
-      - name: Formatting data for publication
-  - title: Governance
-    description: Avoid doing X and Y while doing Z ...
-  - title: Developing a Strategy and Policy
-    description: Avoid doing X and Y while doing Z ...    
