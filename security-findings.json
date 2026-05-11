@@ -1,0 +1,99 @@
+{
+  "scan_metadata": {
+    "repository": "GovLab/ottawa",
+    "branch": "cursor/at-rest-security-findings-2553",
+    "scan_date": "2026-05-11T18:23:00Z",
+    "scan_type": "at-rest-security-review",
+    "slack_delivery": "FAILED — Slack MCP server requires authentication. Please configure Slack OAuth in Cursor Dashboard > Cloud Agents > Secrets."
+  },
+  "summary": {
+    "critical": 1,
+    "high": 3,
+    "medium": 1,
+    "total": 5
+  },
+  "findings": [
+    {
+      "id": "VULN-001",
+      "severity": "critical",
+      "location": "noi_server.py:22",
+      "description": "**Remote Code Execution via Werkzeug Debugger** — Flask debug mode (`app.debug = True`) is enabled with Werkzeug 0.10.4, which does **not** implement PIN protection on the interactive debugger console. Any unauthenticated attacker who triggers a server error gains a full Python REPL on the server.",
+      "impact": "Complete server compromise. An attacker can execute arbitrary Python code, read/write files, access the database, pivot to internal networks, and exfiltrate all data.",
+      "verified": true,
+      "attack_path": "1. Attacker visits `/main`, which renders `main.html` — a template that does not exist in the repository.\n2. Flask raises `TemplateNotFound` exception.\n3. Because `app.debug = True`, Werkzeug catches the exception and serves the interactive debugger page.\n4. Werkzeug 0.10.4 has no PIN/secret protection on the debugger console (PIN was added in 0.11).\n5. Attacker clicks the console icon on any stack frame and executes arbitrary Python (`import os; os.popen('id').read()`).\n6. Full RCE achieved.",
+      "evidence": [
+        "noi_server.py:22 — app.debug = True",
+        "noi_server.py:35-38 — /main route renders missing template main.html",
+        "requirements.txt:5 — Werkzeug==0.10.4 (no debugger PIN)"
+      ],
+      "remediation": "1. **Immediately** set `app.debug = False` in production, or use an environment variable:\n```python\napp.debug = os.environ.get('FLASK_DEBUG', 'false').lower() == 'true'\n```\n2. Upgrade Werkzeug to a current supported version (≥2.x) which has PIN protection and other security fixes.\n3. Never deploy with debug mode enabled. Use a proper WSGI server (gunicorn, uwsgi) instead of the Flask dev server.",
+      "poc_video_notes": "PoC video not generated — no running instance of this application is available in this environment to demonstrate the exploit. The attack is trivially reproducible by visiting /main in a browser when the app is running."
+    },
+    {
+      "id": "VULN-002",
+      "severity": "high",
+      "location": "noi_server.py:23",
+      "description": "**Hardcoded Flask Secret Key in Public Repository** — The Flask session signing key is a static bytes literal hardcoded in source code committed to a public GitHub repository. This key signs all session cookies via `itsdangerous`.",
+      "impact": "Any attacker can forge valid Flask session cookies, impersonating any user. Combined with the session-based identity system (VULN-004), this grants full identity spoofing across the application. The attacker can set arbitrary session data that is rendered in templates.",
+      "verified": true,
+      "attack_path": "1. Attacker reads `noi_server.py:23` from the public GitHub repository to obtain the secret key: `'M\\xb5\\xc1\\xa39t\\x97\\x88\\x13A\\xe8\\t\\x90\\xc2\\x04@\\xe4\\xdeM\\xc8?\\x05}j'`.\n2. Attacker uses the `itsdangerous` library (or `flask-unsign`) to craft a signed session cookie with arbitrary `session['user-as-JSON']` payload.\n3. Attacker sends requests with the forged cookie.\n4. Flask validates the signature (which matches) and loads the attacker-controlled session data.\n5. Templates render the attacker's chosen name and picture URL as the \"authenticated\" user.",
+      "evidence": [
+        "noi_server.py:23 — app.secret_key = 'M\\xb5\\xc1...'",
+        "noi_server.py:75-81 — /session stores user identity in session",
+        "templates/main2.html:19-21 — session data rendered in page",
+        "templates/my-profile.html:11-12 — session data rendered in page"
+      ],
+      "remediation": "1. **Immediately rotate the secret key** — generate a cryptographically random key and store it outside of source control:\n```python\nimport os\napp.secret_key = os.environ['FLASK_SECRET_KEY']\n```\n2. Generate a new key: `python -c \"import os; print(os.urandom(32).hex())\"`\n3. Store the key in environment variables or a secrets manager. Never commit secrets to version control.\n4. Add a `.env` entry to `.gitignore` and use `python-dotenv` or equivalent.",
+      "poc_video_notes": "PoC video not generated — demonstrating cookie forgery requires running the application and using flask-unsign tooling. The hardcoded key is directly visible in source code."
+    },
+    {
+      "id": "VULN-003",
+      "severity": "high",
+      "location": "test_db.py:22, utils/process_participants.py:7",
+      "description": "**Hardcoded PostgreSQL Credentials in Public Repository** — The database connection string includes plaintext credentials (`user='postgres'`, `password='ottawa6491'`, `port='5433'`) hardcoded in two Python files committed to a public GitHub repository.",
+      "impact": "If the PostgreSQL instance is network-accessible (directly or via SSRF/pivot), an attacker gains full database access as the `postgres` superuser — enabling read/write/delete of all user data, potential privilege escalation within PostgreSQL, and lateral movement if the database host has further network access.",
+      "verified": true,
+      "attack_path": "1. Attacker reads `test_db.py:22` from the public repository to obtain: host=localhost, dbname=noi, user=postgres, password=ottawa6491, port=5433.\n2. If the database port (5433) is exposed to the network (common in cloud deployments without proper firewall rules), the attacker connects directly.\n3. Alternatively, combined with VULN-001 (RCE via debugger), the attacker connects from the server itself.\n4. As the `postgres` superuser, the attacker can read all user records, modify data, or drop tables.",
+      "evidence": [
+        "test_db.py:22 — conn_string with password='ottawa6491'",
+        "utils/process_participants.py:7 — identical credentials"
+      ],
+      "remediation": "1. **Immediately rotate the database password.**\n2. Move credentials to environment variables:\n```python\nimport os\nconn_string = \"host='{}' dbname='{}' user='{}' password='{}' port='{}'\".format(\n    os.environ['DB_HOST'], os.environ['DB_NAME'],\n    os.environ['DB_USER'], os.environ['DB_PASSWORD'], os.environ['DB_PORT'])\n```\n3. Use a non-superuser database account with minimal required privileges.\n4. Restrict database network access via firewall rules (deny public access to port 5433).\n5. Consider using SSL/TLS for database connections.",
+      "poc_video_notes": "PoC video not generated — exploiting this requires network access to the database host, which is not available in this scan environment."
+    },
+    {
+      "id": "VULN-004",
+      "severity": "high",
+      "location": "noi_server.py:75-81",
+      "description": "**Missing Server-Side Authentication — Arbitrary Identity Injection** — The `/session` POST endpoint accepts a user identity JSON blob and a Firebase token from the client but **never validates the token server-side**. It stores whatever the client sends directly into the Flask session as the authenticated user.",
+      "impact": "Any unauthenticated attacker can claim any identity by sending a crafted POST request. The server will treat them as that user for all subsequent requests. This completely bypasses the intended Google OAuth / Firebase authentication flow.",
+      "verified": true,
+      "attack_path": "1. Attacker sends: `curl -X POST /session -d 'user-as-JSON={\"given_name\":\"Admin\",\"family_name\":\"User\",\"picture\":\"https://example.com/pic.jpg\"}&token=fake'`\n2. The server executes `json.loads(request.form['user-as-JSON'])` and stores the result in `session['user-as-JSON']` without any validation (line 79).\n3. The server stores the fake token in `session['token']` without verifying it against Firebase (line 80).\n4. On subsequent requests, the application renders the attacker's chosen identity in templates (`main2.html:20`, `my-profile.html:12`).\n5. The attacker is now \"logged in\" as whatever identity they chose.",
+      "evidence": [
+        "noi_server.py:75-81 — /session handler stores unvalidated client data",
+        "noi_server.py:79 — json.loads(request.form['user-as-JSON']) with no validation",
+        "noi_server.py:80 — token stored without Firebase verification",
+        "templates/main2.html:19-21 — session identity rendered to user"
+      ],
+      "remediation": "1. **Validate the Firebase ID token server-side** using the Firebase Admin SDK before trusting any client-provided identity:\n```python\nfrom firebase_admin import auth as firebase_auth\n\n@app.route('/session', methods=['POST'])\ndef manage_session():\n    token = request.form.get('token')\n    try:\n        decoded = firebase_auth.verify_id_token(token)\n        session['user'] = {\n            'uid': decoded['uid'],\n            'name': decoded.get('name'),\n            'picture': decoded.get('picture'),\n            'email': decoded.get('email')\n        }\n    except Exception:\n        return jsonify({'error': 'Invalid token'}), 401\n    return jsonify({'result': 0})\n```\n2. Never trust client-provided identity claims without server-side verification.\n3. Add CSRF protection to the POST endpoint.",
+      "poc_video_notes": "PoC video not generated — no running instance available. The vulnerability is demonstrable with a single curl command against a running server."
+    },
+    {
+      "id": "VULN-005",
+      "severity": "medium",
+      "location": "noi_server.py:57-61, noi_server.py:84-103",
+      "description": "**Unauthenticated Data Access and User Enumeration (IDOR)** — The `/user/<userid>`, `/search`, and `/match` endpoints have no authentication or authorization checks. Any anonymous visitor can access any user's full profile data and search/enumerate all users in the database.",
+      "impact": "Complete exposure of the user directory — names, organizations, titles, cities, locations, languages, and skill assessments for all users. Numeric user IDs make enumeration trivial. This data could be harvested for social engineering, competitive intelligence, or spam.",
+      "verified": true,
+      "attack_path": "1. Attacker visits `/search?location=&langs=&skills=` (empty params) to retrieve up to 10 users with all their data.\n2. For each result, `r.id` is visible in the response HTML.\n3. Attacker visits `/user/<id>` for each ID to get full profile data including skills JSON.\n4. Attacker iterates through numeric IDs (`/user/1`, `/user/2`, ...) to enumerate all users.\n5. No login, session, or API key is required at any step.",
+      "evidence": [
+        "noi_server.py:57-61 — /user/<userid> with no auth check",
+        "noi_server.py:84-92 — /search with no auth check",
+        "noi_server.py:95-103 — /match with no auth check",
+        "templates/search-results.html:28 — user IDs visible in links"
+      ],
+      "remediation": "1. Add authentication middleware that verifies the user has a valid session before accessing data endpoints:\n```python\nfrom functools import wraps\n\ndef login_required(f):\n    @wraps(f)\n    def decorated(*args, **kwargs):\n        if 'user' not in session or not session['user'].get('uid'):\n            return redirect(url_for('main2'))\n        return f(*args, **kwargs)\n    return decorated\n\n@app.route('/user/<userid>')\n@login_required\ndef get_user(userid):\n    ...\n```\n2. Implement proper authorization to control which users can see which profiles.\n3. Use non-sequential, non-guessable user identifiers (UUIDs).",
+      "poc_video_notes": "PoC video not generated — no running instance available. Exploitation requires only a web browser visiting the URL endpoints."
+    }
+  ]
+}
